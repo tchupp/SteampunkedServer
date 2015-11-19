@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="29e40886-504a-4955-af34-2732ef54f0c2" name="cse476-steampunked" url="http://arctic.cse.msu.edu">
+        <fileTransfer host="arctic.cse.msu.edu" port="22" rootFolder="/user/chuppthe/classweb/cse476/steampunked" accessType="SFTP" password="dfe2dfcfdfe2dfcfdfe3dfc6df9bdfe1dfefdffadfe3dfef" username="chuppthe">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
