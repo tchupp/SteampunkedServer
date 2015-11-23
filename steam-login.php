@@ -3,10 +3,11 @@
  * Steampunked app login handling
  */
 require_once "db.inc.php";
+require_once "auth.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
-if (!isset($_GET['magic']) || $_GET['magic'] != "TechItHa6RuzeM8") {
-    echo '<steam status="no" msg="magic" />';
+if (!isset($_GET['magic']) || $_GET['magic'] != $SERVER_MAGIC) {
+    echo '<steam status="no" msg="magic"/>';
     exit;
 }
 
@@ -23,7 +24,27 @@ function process($user, $password) {
     // Connect to the database
     $pdo = pdo_connect();
 
-    getUser($pdo, $user, $password);
+    $userId = getUser($pdo, $user, $password);
+
+    $tokenDate = $pdo->quote(date("Y-m-d H:i:s"));
+    $authToken = $pdo->quote(generateToken());
+
+    $query = "UPDATE steampunked_auth_token
+              SET token_value=$authToken, token_date=$tokenDate
+              WHERE user_id=$userId";
+    $pdo->query($query);
+
+    $query = "SELECT series, token_value FROM steampunked_auth_token WHERE user_id=$userId";
+    $rows = $pdo->query($query);
+    if ($row = $rows->fetch()) {
+        $series = $row['series'];
+        $token = $row['token_value'];
+        echo "<steam status=\"yes\" msg=\"login successful\" series=\"$series\" auth=\"$token\"/>";
+        exit;
+    }
+
+    echo "<steam status=\"no\" msg=\"authentication error\"/>";
+    exit;
 }
 
 /**
@@ -38,7 +59,7 @@ function process($user, $password) {
 function getUser($pdo, $user, $password) {
     // Does the user exist in the database?
     $userQ = $pdo->quote($user);
-    $query = "SELECT id, password FROM steampunkeduser WHERE user=$userQ";
+    $query = "SELECT id, password FROM steampunked_user WHERE user=$userQ";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
@@ -49,8 +70,7 @@ function getUser($pdo, $user, $password) {
             exit;
         }
 
-        echo '<steam status="yes" msg="login successful"/>';
-        exit;
+        return $row['id'];
     }
 
     echo '<steam status="no" msg="user error" />';

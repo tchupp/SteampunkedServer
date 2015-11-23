@@ -3,9 +3,10 @@
  * Steampunked app register handling
  */
 require_once "db.inc.php";
+require_once "auth.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
-if (!isset($_GET['magic']) || $_GET['magic'] != "TechItHa6RuzeM8") {
+if (!isset($_GET['magic']) || $_GET['magic'] != $SERVER_MAGIC) {
     echo '<steam status="no" msg="magic" />';
     exit;
 }
@@ -29,15 +30,22 @@ function process($user, $password) {
     $userQ = $pdo->quote($user);
     $pwQ = $pdo->quote($password);
 
-    $query = "INSERT INTO steampunkeduser(user, password) VALUES($userQ, $pwQ)";
+    $query = "INSERT INTO steampunked_user(user, password) VALUES($userQ, $pwQ)";
     $pdo->query($query);
 
-    $query = "SELECT id FROM steampunkeduser WHERE user=$userQ";
+    $query = "SELECT id FROM steampunked_user WHERE user=$userQ";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
         // We found the record in the database
-        echo '<steam status="yes" />';
+
+        $userId = $row['id'];
+        $authSeries = $pdo->quote(generateToken());
+
+        $query = "INSERT INTO steampunked_auth_token(series, user_id) VALUES($authSeries, $userId)";
+        $pdo->query($query);
+
+        echo "<steam status='yes' />";
         exit;
     } else {
         echo '<steam status="no" msg="user not created" />';
@@ -56,7 +64,7 @@ function process($user, $password) {
 function getUser($pdo, $user) {
     // Does the user exist in the database?
     $userQ = $pdo->quote($user);
-    $query = "SELECT id FROM steampunkeduser WHERE user=$userQ";
+    $query = "SELECT id FROM steampunked_user WHERE user=$userQ";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {

@@ -1,5 +1,7 @@
 <?php
 
+$SERVER_MAGIC = "TechItHa6RuzeM8";
+
 function pdo_connect() {
     try {
         // Production server
