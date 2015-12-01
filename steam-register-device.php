@@ -20,7 +20,6 @@ process($_GET['user'], $_SERVER['HTTP_AUTHTOKEN'], $_GET['device']);
 /**
  * Process the query
  *
- *
  * @param $user string the user to register for
  * @param $authToken string the authentication token for the user
  * @param $deviceToken string the device token for the user

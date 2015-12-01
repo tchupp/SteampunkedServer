@@ -30,10 +30,14 @@ function process($user, $password) {
     $userQ = $pdo->quote($user);
     $pwQ = $pdo->quote($password);
 
-    $query = "INSERT INTO steampunked_user(user, password) VALUES($userQ, $pwQ)";
+    $query = "INSERT
+              INTO steampunked_user(user, password)
+              VALUES($userQ, $pwQ)";
     $pdo->query($query);
 
-    $query = "SELECT id FROM steampunked_user WHERE user=$userQ";
+    $query = "SELECT id
+              FROM steampunked_user
+              WHERE user=$userQ";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
@@ -42,7 +46,9 @@ function process($user, $password) {
         $userId = $row['id'];
         $authSeries = $pdo->quote(generateToken());
 
-        $query = "INSERT INTO steampunked_auth_token(series, user_id) VALUES($authSeries, $userId)";
+        $query = "INSERT
+                  INTO steampunked_auth_token(series, user_id)
+                  VALUES($authSeries, $userId)";
         $pdo->query($query);
 
         echo "<steam status='yes' />";

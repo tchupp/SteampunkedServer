@@ -159,7 +159,8 @@ name</columns>
       <column id="46" parent="7" name="joining_user_id">
         <data-type>int(11)</data-type>
       </column>
-      <column id="47" parent="7" name="move_date">
+      <column id="47" parent="7" name="creation_date">
+        <mandatory>1</mandatory>
         <data-type>date</data-type>
       </column>
       <column id="48" parent="7" name="name">
