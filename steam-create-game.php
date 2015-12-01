@@ -1,6 +1,6 @@
 <?php
 /*
- * Steampunked app register device token handling
+ * Steampunked app creating a game
  */
 require_once "db.inc.php";
 require_once "auth.inc.php";
@@ -51,12 +51,16 @@ function process($user, $authToken, $name, $grid) {
     $gridQ = $pdo->quote($grid);
     $creationDate = $pdo->quote(date("Y-m-d H:i:s"));
 
+    $pdo->beginTransaction();
+
     $query = "INSERT
               INTO steampunked_game(creating_user_id, name, grid, creation_date)
               VALUES($userId, $nameQ, $gridQ, $creationDate)";
     $pdo->query($query);
 
-    $gameId = $pdo->lastInsertId();;
+    $gameId = $pdo->lastInsertId();
+
+    $pdo->commit();
 
     echo "<steam status='yes' game='$gameId' />";
     exit;
