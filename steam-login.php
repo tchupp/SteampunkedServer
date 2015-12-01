@@ -34,7 +34,10 @@ function process($user, $password) {
               WHERE user_id=$userId";
     $pdo->query($query);
 
-    $query = "SELECT series, token_value FROM steampunked_auth_token WHERE user_id=$userId";
+    $query = "SELECT series, token_value
+              FROM steampunked_auth_token
+              WHERE user_id=$userId";
+
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
         $series = $row['series'];
@@ -59,7 +62,9 @@ function process($user, $password) {
 function getUser($pdo, $user, $password) {
     // Does the user exist in the database?
     $userQ = $pdo->quote($user);
-    $query = "SELECT id, password FROM steampunked_user WHERE user=$userQ";
+    $query = "SELECT id, password
+              FROM steampunked_user
+              WHERE user=$userQ";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
