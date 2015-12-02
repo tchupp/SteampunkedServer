@@ -30,33 +30,25 @@ function process($user, $password) {
     $userQ = $pdo->quote($user);
     $pwQ = $pdo->quote($password);
 
+    $pdo->beginTransaction();
+
     $query = "INSERT
               INTO steampunked_user(user, password)
               VALUES($userQ, $pwQ)";
     $pdo->query($query);
 
-    $query = "SELECT id
-              FROM steampunked_user
-              WHERE user=$userQ";
+    $userId = $pdo->lastInsertId();
+    $authSeries = $pdo->quote(generateToken());
 
-    $rows = $pdo->query($query);
-    if ($row = $rows->fetch()) {
-        // We found the record in the database
+    $query = "INSERT
+              INTO steampunked_auth_token(series, user_id)
+              VALUES($authSeries, $userId)";
+    $pdo->query($query);
 
-        $userId = $row['id'];
-        $authSeries = $pdo->quote(generateToken());
+    $pdo->commit();
 
-        $query = "INSERT
-                  INTO steampunked_auth_token(series, user_id)
-                  VALUES($authSeries, $userId)";
-        $pdo->query($query);
-
-        echo "<steam status='yes' />";
-        exit;
-    } else {
-        echo '<steam status="no" msg="user not created" />';
-        exit;
-    }
+    echo "<steam status='yes' />";
+    exit;
 }
 
 /**

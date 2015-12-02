@@ -34,19 +34,7 @@ function process($user, $password) {
               WHERE user_id=$userId";
     $pdo->query($query);
 
-    $query = "SELECT series, token_value
-              FROM steampunked_auth_token
-              WHERE user_id=$userId";
-
-    $rows = $pdo->query($query);
-    if ($row = $rows->fetch()) {
-        $series = $row['series'];
-        $token = $row['token_value'];
-        echo "<steam status=\"yes\" msg=\"login successful\" series=\"$series\" auth=\"$token\"/>";
-        exit;
-    }
-
-    echo "<steam status=\"no\" msg=\"authentication error\"/>";
+    echo "<steam status=\"yes\" msg=\"login successful\" auth=\"$authToken\"/>";
     exit;
 }
 

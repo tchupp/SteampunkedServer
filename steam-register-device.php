@@ -33,26 +33,20 @@ function process($user, $authToken, $deviceToken) {
     }
 
     $userQ = $pdo->quote($user);
-    $query = "SELECT id
+    $tokenDate = $pdo->quote(date("Y-m-d H:i:s"));
+    $deviceTokenQ = $pdo->quote($deviceToken);
+
+    $query = "INSERT
+              INTO steampunked_device_token(token_value, token_date, user_id)
+              VALUES($deviceTokenQ, $tokenDate,
+              (SELECT id
               FROM steampunked_user
-              WHERE user=$userQ";
+              WHERE user=$userQ))
+              ON DUPLICATE KEY UPDATE
+              token_value=$deviceTokenQ,
+              token_date=$tokenDate";
+    $pdo->query($query);
 
-    $rows = $pdo->query($query);
-    if ($row = $rows->fetch()) {
-        $userId = $row['id'];
-
-        $tokenDate = $pdo->quote(date("Y-m-d H:i:s"));
-        $deviceTokenQ = $pdo->quote($deviceToken);
-
-        $query = "UPDATE steampunked_device_token
-                  SET token_value=$deviceTokenQ, token_date=$tokenDate
-                  WHERE user_id=$userId";
-        $pdo->query($query);
-
-        echo '<steam status="yes" />';
-        exit;
-    }
-
-    echo '<steam status="no" msg="user error" />';
+    echo '<steam status="yes" />';
     exit;
 }

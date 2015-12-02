@@ -34,18 +34,6 @@ function process($user, $authToken, $name, $grid) {
     }
 
     $userQ = $pdo->quote($user);
-    $query = "SELECT id
-              FROM steampunked_user
-              WHERE user=$userQ";
-
-    $rows = $pdo->query($query);
-    if (!$row = $rows->fetch()) {
-        echo '<steam status="no" msg="user error"/>';
-        exit;
-    }
-
-    // We found the record in the database
-    $userId = $row['id'];
     $nameQ = $pdo->quote($name);
     $gridQ = $pdo->quote($grid);
     $creationDate = $pdo->quote(date("Y-m-d H:i:s"));
@@ -53,8 +41,11 @@ function process($user, $authToken, $name, $grid) {
     $pdo->beginTransaction();
 
     $query = "INSERT
-              INTO steampunked_game(creating_user_id, name, grid, creation_date)
-              VALUES($userId, $nameQ, $gridQ, $creationDate)";
+              INTO steampunked_game(name, grid, creation_date, creating_user_id)
+              VALUES($nameQ, $gridQ, $creationDate,
+              (SELECT id
+              FROM steampunked_user
+              WHERE user=$userQ))";
     $pdo->query($query);
 
     $gameId = $pdo->lastInsertId();
