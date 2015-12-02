@@ -1,25 +1,30 @@
 <?php
 /*
- * Steampunked app loading all open games
+ * Steampunked app loading all pipes from one game
  */
 require_once "db.inc.php";
 require_once "auth.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
+if (!isset($_GET['game'])) {
+    echo '<steam status="no" msg="malformed params"/>';
+    exit;
+}
 if (!isset($_SERVER['HTTP_AUTHUSER']) || !isset($_SERVER["HTTP_AUTHTOKEN"])) {
     echo '<steam status="no" msg="malformed auth header"/>';
     exit;
 }
 
-process($_SERVER['HTTP_AUTHUSER'], $_SERVER['HTTP_AUTHTOKEN']);
+process($_SERVER['HTTP_AUTHUSER'], $_SERVER['HTTP_AUTHTOKEN'], $_GET['game']);
 
 /**
  * Process the query
  *
  * @param $user string the user to register for
  * @param $authToken string the authentication token for the user
+ * @param $game string id of the game to load
  */
-function process($user, $authToken) {
+function process($user, $authToken, $game) {
     $pdo = pdo_connect();
 
     if (!authenticate($pdo, $user, $authToken)) {
@@ -27,22 +32,24 @@ function process($user, $authToken) {
         exit;
     }
 
-    $query = "SELECT Game.id, name, user, grid
-              FROM steampunked_game Game, steampunked_user User
-              WHERE Game.creating_user_id = User.id
-              AND Game.joining_user_id IS NULL";
+    $gameQ = $pdo->quote($game);
+    $query = "SELECT xml
+              FROM steampunked_pipe
+              WHERE game_id=$gameQ";
+
+    if (isset($_GET['pipe'])) {
+        $pipeQ = $pdo->quote($_GET['pipe']);
+        $query .= " AND id=$pipeQ";
+    }
 
     $rows = $pdo->query($query);
 
     echo "<steam status=\"yes\">\n";
     foreach ($rows as $row) {
-        $id = $row['id'];
-        $name = $row['name'];
-        $creator = $row['user'];
-        $grid = $row['grid'];
-
-        echo "<game id=\"$id\" name=\"$name\" creator=\"$creator\" grid=\"$grid\"/>\r\n";
+        $xml = $row['xml'];
+        echo "$xml";
     }
     echo "</steam>";
     exit;
 }
+
