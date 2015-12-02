@@ -6,16 +6,16 @@ require_once "db.inc.php";
 require_once "auth.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
-if (!isset($_GET['user']) || !isset($_GET['device'])) {
+if (!isset($_GET['device'])) {
     echo '<steam status="no" msg="malformed params"/>';
     exit;
 }
-if (!isset($_SERVER["HTTP_AUTHTOKEN"])) {
-    echo '<steam status="no" msg="no auth token"/>';
+if (!isset($_SERVER['HTTP_AUTHUSER']) || !isset($_SERVER["HTTP_AUTHTOKEN"])) {
+    echo '<steam status="no" msg="malformed auth header"/>';
     exit;
 }
 
-process($_GET['user'], $_SERVER['HTTP_AUTHTOKEN'], $_GET['device']);
+process($_SERVER['HTTP_AUTHUSER'], $_SERVER['HTTP_AUTHTOKEN'], $_GET['device']);
 
 /**
  * Process the query

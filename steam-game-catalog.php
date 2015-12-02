@@ -6,16 +6,12 @@ require_once "db.inc.php";
 require_once "auth.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
-if (!isset($_GET['user'])) {
-    echo '<steam status="no" msg="malformed params"/>';
-    exit;
-}
-if (!isset($_SERVER["HTTP_AUTHTOKEN"])) {
-    echo '<steam status="no" msg="no auth token"/>';
+if (!isset($_SERVER['HTTP_AUTHUSER']) || !isset($_SERVER["HTTP_AUTHTOKEN"])) {
+    echo '<steam status="no" msg="malformed auth header"/>';
     exit;
 }
 
-process($_GET['user'], $_SERVER['HTTP_AUTHTOKEN']);
+process($_SERVER['HTTP_AUTHUSER'], $_SERVER['HTTP_AUTHTOKEN']);
 
 /**
  * Process the query
