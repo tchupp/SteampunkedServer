@@ -46,7 +46,7 @@ function process($user, $authToken, $game) {
         $creating = $row['creating'];
         $joining = $row['joining'];
         $grid = $row['grid'];
-        echo "<steam status='yes' name='$name' creator='$creating' joining='$joining' grid='$grid' />";
+        echo "<steam status='yes' name='$name' creating='$creating' joining='$joining' grid='$grid' />";
         exit;
     }
     echo "<steam status='no' msg='failed to find game' />";

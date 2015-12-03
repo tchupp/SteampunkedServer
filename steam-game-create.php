@@ -41,12 +41,11 @@ function process($user, $authToken, $name, $grid) {
     $pdo->beginTransaction();
 
     $query = "INSERT
-              INTO steampunked_game(name, grid, creation_date, creating_user_id, joining_user_id)
+              INTO steampunked_game(name, grid, creation_date, creating_user_id)
               VALUES($nameQ, $gridQ, $creationDate,
               (SELECT id
               FROM steampunked_user
-              WHERE user=$userQ),
-              -1)";
+              WHERE user=$userQ))";
     $result = $pdo->query($query);
 
     if ($result->rowCount() == 0) {
