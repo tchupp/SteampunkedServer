@@ -41,12 +41,20 @@ function process($user, $authToken, $name, $grid) {
     $pdo->beginTransaction();
 
     $query = "INSERT
-              INTO steampunked_game(name, grid, creation_date, creating_user_id)
+              INTO steampunked_game(name, grid, creation_date, creating_user_id, joining_user_id)
               VALUES($nameQ, $gridQ, $creationDate,
               (SELECT id
               FROM steampunked_user
-              WHERE user=$userQ))";
-    $pdo->query($query);
+              WHERE user=$userQ),
+              -1)";
+    $result = $pdo->query($query);
+
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
+
+        echo "<steam status='no' msg='failed to create game' />";
+        exit;
+    }
 
     $gameId = $pdo->lastInsertId();
 

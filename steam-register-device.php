@@ -45,8 +45,13 @@ function process($user, $authToken, $deviceToken) {
               ON DUPLICATE KEY UPDATE
               token_value=$deviceTokenQ,
               token_date=$tokenDate";
-    $pdo->query($query);
+    $result = $pdo->query($query);
 
-    echo '<steam status="yes" />';
+    if ($result->rowCount() != 0) {
+        echo '<steam status="yes" />';
+        exit;
+    }
+
+    echo '<steam status="no" msg="failed to register device"/>';
     exit;
 }

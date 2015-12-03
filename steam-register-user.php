@@ -35,7 +35,11 @@ function process($user, $password) {
     $query = "INSERT
               INTO steampunked_user(user, password)
               VALUES($userQ, $pwQ)";
-    $pdo->query($query);
+    $result = $pdo->query($query);
+    if ($result->rowCount() == 0) {
+        echo "<steam status='no' msg='failed to insert user' />";
+        exit;
+    }
 
     $userId = $pdo->lastInsertId();
     $authSeries = $pdo->quote(generateToken());
@@ -43,7 +47,13 @@ function process($user, $password) {
     $query = "INSERT
               INTO steampunked_auth_token(series, user_id)
               VALUES($authSeries, $userId)";
-    $pdo->query($query);
+    $result = $pdo->query($query);
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
+
+        echo "<steam status='no' msg='failed to insert auth' />";
+        exit;
+    }
 
     $pdo->commit();
 

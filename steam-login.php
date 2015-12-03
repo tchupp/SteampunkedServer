@@ -27,15 +27,22 @@ function process($user, $password) {
     $userId = getUser($pdo, $user, $password);
 
     $tokenDate = $pdo->quote(date("Y-m-d H:i:s"));
-    $authToken = $pdo->quote(generateToken());
+
+    $authToken = generateToken();
+    $authTokenQ = $pdo->quote($authToken);
 
     $query = "UPDATE steampunked_auth_token
-              SET token_value=$authToken, token_date=$tokenDate
-              WHERE user_id=$userId";
-    $pdo->query($query);
+              SET token_value = $authTokenQ, token_date = $tokenDate
+              WHERE user_id = $userId";
+    $result = $pdo->query($query);
 
-    echo "<steam status=\"yes\" msg=\"login successful\" auth=\"$authToken\"/>";
+    if ($result->rowCount() != 0) {
+        echo "<steam status=\"yes\" msg=\"login successful\" auth=\"$authToken\"/>";
+        exit;
+    }
+    echo "<steam status=\"no\" msg=\"login failed\" />";
     exit;
+
 }
 
 /**

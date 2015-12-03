@@ -30,7 +30,7 @@ function process($user, $authToken) {
     $query = "SELECT Game.id, name, user, grid
               FROM steampunked_game Game, steampunked_user User
               WHERE Game.creating_user_id = User.id
-              AND Game.joining_user_id IS NULL";
+              AND Game.joining_user_id = -1";
 
     $rows = $pdo->query($query);
 

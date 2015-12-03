@@ -37,7 +37,14 @@ function process($user, $authToken, $game, $xml) {
     $query = "INSERT
               INTO steampunked_pipe(game_id, xml)
               VALUES($gameQ, $xmlQ)";
-    $pdo->query($query);
+    $result = $pdo->query($query);
+
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
+
+        echo "<steam status='no' msg='failed to save pipe' />";
+        exit;
+    }
 
     $pipeId = $pdo->lastInsertId();
 
