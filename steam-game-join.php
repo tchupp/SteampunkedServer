@@ -4,6 +4,7 @@
  */
 require_once "db.inc.php";
 require_once "auth.inc.php";
+require_once "gcm.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
 if (!isset($_GET['game'])) {
@@ -51,12 +52,33 @@ function process($user, $authToken, $game) {
 
     $result = $pdo->query($query);
 
-    $pdo->commit();
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
 
-    if ($result->rowCount() != 0) {
-        echo "<steam status=\"yes\" />";
+        echo "<steam status=\"no\" msg='error joining game' />";
         exit;
     }
-    echo "<steam status=\"no\" msg=\"can't join a game with two players\" />";
+
+    $query = "UPDATE steampunked_game_info, steampunked_game_status
+              SET game_status = name
+              WHERE game_id=$gameId
+              AND name LIKE '%STEAMING%'";
+
+    $result = $pdo->query($query);
+
+    if (!$result) {
+        $pdo->rollBack();
+
+        echo "<steam status=\"no\" msg='error updating game info' />";
+        exit;
+    }
+
+    $deviceToken = getOpponentDeviceToken($pdo, $user, $game);
+
+    sendGCM($deviceToken, playerJoinedKey(), "YOOOOOOOO", $user);
+
+    $pdo->commit();
+
+    echo "<steam status=\"yes\" />";
     exit;
 }

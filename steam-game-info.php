@@ -34,19 +34,25 @@ function process($user, $authToken, $game) {
 
     $gameId = $pdo->quote($game);
 
-    $query = "SELECT name, UserA.user AS creating, UserB.user AS joining, grid
-              FROM steampunked_game Game, steampunked_user UserA, steampunked_user UserB
+    $query = "SELECT name, UserA.user AS creating, UserB.user AS joining, UserC.user AS active, grid, Info.game_status AS status
+              FROM steampunked_game Game, steampunked_game_info Info,
+                steampunked_user UserA, steampunked_user UserB, steampunked_user UserC
               WHERE Game.id = $gameId
               AND Game.creating_user_id = UserA.id
-              AND Game.joining_user_id = UserB.id";
+              AND Game.joining_user_id = UserB.id
+              AND Info.active_player_id = UserC.id
+              AND Info.game_id = $gameId";
 
     $rows = $pdo->query($query);
     if ($row = $rows->fetch()) {
         $name = $row['name'];
         $creating = $row['creating'];
         $joining = $row['joining'];
+        $active = $row['active'];
+        $status = $row['status'];
         $grid = $row['grid'];
-        echo "<steam status='yes' name='$name' creating='$creating' joining='$joining' grid='$grid' />";
+        echo "<steam status='yes' name='$name' creating='$creating' joining='$joining'
+                active='$active' gameStatus='$status' grid='$grid' />";
         exit;
     }
     echo "<steam status='no' msg='failed to find game' />";

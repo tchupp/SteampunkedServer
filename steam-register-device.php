@@ -40,11 +40,11 @@ function process($user, $authToken, $deviceToken) {
               INTO steampunked_device_token(token_value, token_date, user_id)
               VALUES($deviceTokenQ, $tokenDate,
               (SELECT id
-              FROM steampunked_user
-              WHERE user=$userQ))
+               FROM steampunked_user
+               WHERE user=$userQ))
               ON DUPLICATE KEY UPDATE
-              token_value=$deviceTokenQ,
-              token_date=$tokenDate";
+               token_value=$deviceTokenQ,
+               token_date=$tokenDate";
     $result = $pdo->query($query);
 
     if ($result->rowCount() != 0) {

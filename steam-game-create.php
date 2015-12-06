@@ -44,8 +44,8 @@ function process($user, $authToken, $name, $grid) {
               INTO steampunked_game(name, grid, creation_date, creating_user_id)
               VALUES($nameQ, $gridQ, $creationDate,
               (SELECT id
-              FROM steampunked_user
-              WHERE user=$userQ))";
+               FROM steampunked_user
+               WHERE user=$userQ))";
     $result = $pdo->query($query);
 
     if ($result->rowCount() == 0) {
@@ -56,6 +56,24 @@ function process($user, $authToken, $name, $grid) {
     }
 
     $gameId = $pdo->lastInsertId();
+
+    $query = "INSERT
+              INTO steampunked_game_info(game_id, active_player_id, game_status)
+              VALUES($gameId,
+                (SELECT id
+                 FROM steampunked_user
+                 WHERE user=$userQ),
+                (SELECT name
+                 FROM steampunked_game_status
+                 WHERE name LIKE '%CREATED%'))";
+    $result = $pdo->query($query);
+
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
+
+        echo "<steam status='no' msg='failed to create game' />";
+        exit;
+    }
 
     $pdo->commit();
 

@@ -28,9 +28,13 @@ function process($user, $authToken) {
     }
 
     $query = "SELECT Game.id, name, user, grid
-              FROM steampunked_game Game, steampunked_user User
+              FROM steampunked_game Game, steampunked_user User, steampunked_game_info Info
               WHERE Game.creating_user_id = User.id
-              AND Game.joining_user_id = -1";
+              AND Game.id = Info.game_id
+              AND Info.game_status =
+                (SELECT name
+                 FROM steampunked_game_status
+                 WHERE name LIKE '%CREATED%')";
 
     $rows = $pdo->query($query);
 
