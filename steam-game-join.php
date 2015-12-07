@@ -77,7 +77,7 @@ function process($user, $authToken, $game) {
 
     $deviceToken = getOpponentDeviceToken($pdo, $user, $game);
 
-    sendGCM($deviceToken, playerJoinedKey(), "player 2 joined", $user);
+    sendGCM($deviceToken, playerJoinedKey(), "Opponent Joined The Game", $user);
 
     echo "<steam status=\"yes\" />";
     exit;

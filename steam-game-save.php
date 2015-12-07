@@ -67,7 +67,7 @@ function process($user, $authToken, $game, $xml) {
 
     $deviceToken = getOpponentDeviceToken($pdo, $user, $game);
 
-    sendGCM($deviceToken, newMoveKey(), "player saved", $pipeId);
+    sendGCM($deviceToken, newMoveKey(), "Opponent Placed Pipe", $pipeId);
 
     echo "<steam status='yes' pipe='$pipeId' />";
     exit;
