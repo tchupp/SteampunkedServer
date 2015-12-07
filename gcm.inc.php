@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Get the device token for your opponent
+ *
  * @param $pdo PDO for the database
  * @param $user string user name
  * @param $game string game id
@@ -39,6 +41,33 @@ function getOpponentDeviceToken($pdo, $user, $game) {
     }
 
     return $row1['token'];
+}
+
+/**
+ * @param $pdo PDO for the database
+ * @param $user string user name
+ * @param $game string game id
+ * @return string opponent user name
+ */
+function getOpponentUser($pdo, $user, $game) {
+    $gameQ = $pdo->quote($game);
+
+    $query = "SELECT UserA.user AS creating, UserB.user AS joining
+              FROM steampunked_game Game, steampunked_user UserA, steampunked_user UserB
+              WHERE Game.id = $gameQ
+              AND Game.creating_user_id = UserA.id
+              AND Game.joining_user_id = UserB.id";
+
+    $rows = $pdo->query($query);
+    $row = $rows->fetch();
+    if (!$row) {
+        exit;
+    }
+
+    $creating = $row['creating'];
+    $joining = $row['joining'];
+
+    return $pdo->quote(($creating == $user) ? $joining : $creating);
 }
 
 function sendGCM($deviceToken, $title, $message, $data) {
