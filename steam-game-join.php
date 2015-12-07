@@ -73,11 +73,11 @@ function process($user, $authToken, $game) {
         exit;
     }
 
+    $pdo->commit();
+
     $deviceToken = getOpponentDeviceToken($pdo, $user, $game);
 
-    sendGCM($deviceToken, playerJoinedKey(), "YOOOOOOOO", $user);
-
-    $pdo->commit();
+    sendGCM($deviceToken, playerJoinedKey(), "player 2 joined", $user);
 
     echo "<steam status=\"yes\" />";
     exit;

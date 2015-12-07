@@ -73,9 +73,8 @@ function sendGCM($deviceToken, $title, $message, $data) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-    $result = curl_exec($ch);
+    curl_exec($ch);
     curl_close($ch);
-    echo $result;
 }
 
 function showToastKey() {
@@ -88,6 +87,10 @@ function playerJoinedKey() {
 
 function newMoveKey() {
     return "new_move";
+}
+
+function discardMoveKey() {
+    return "pipe_discard";
 }
 
 function endGameKey() {

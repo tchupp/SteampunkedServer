@@ -4,6 +4,7 @@
  */
 require_once "db.inc.php";
 require_once "auth.inc.php";
+require_once "gcm.inc.php";
 echo '<?xml version="1.0" encoding="UTF-8" ?>';
 
 if (!isset($_GET['game'])) {
@@ -34,6 +35,20 @@ function process($user, $authToken, $game, $xml) {
 
     $pdo->beginTransaction();
 
+    $moveDate = $pdo->quote(date("Y-m-d H:i:s"));
+
+    $query = "UPDATE steampunked_game_info
+              SET move_date = $moveDate
+              WHERE game_id=$gameQ";
+    $result = $pdo->query($query);
+
+    if ($result->rowCount() == 0) {
+        $pdo->rollBack();
+
+        echo "<steam status='no' msg='failed to save pipe' />";
+        exit;
+    }
+
     $query = "INSERT
               INTO steampunked_pipe(game_id, xml)
               VALUES($gameQ, $xmlQ)";
@@ -49,6 +64,10 @@ function process($user, $authToken, $game, $xml) {
     $pipeId = $pdo->lastInsertId();
 
     $pdo->commit();
+
+    $deviceToken = getOpponentDeviceToken($pdo, $user, $game);
+
+    sendGCM($deviceToken, newMoveKey(), "player saved", $pipeId);
 
     echo "<steam status='yes' pipe='$pipeId' />";
     exit;
