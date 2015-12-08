@@ -27,6 +27,33 @@ function process($user, $authToken) {
         exit;
     }
 
+    $userQ = $pdo->quote($user);
+
+    echo "<steam status='yes' >\n";
+
+    $query = "SELECT Game.id, name, user, grid
+              FROM steampunked_game Game, steampunked_user User, steampunked_game_info Info
+              WHERE Game.creating_user_id = User.id
+              AND Game.id = Info.game_id
+              AND Info.game_status =
+                (SELECT name
+                 FROM steampunked_game_status
+                 WHERE name LIKE '%STEAMING%')
+              OR Game.creating_user_id = $userQ
+              OR Game.joining_user_id = $userQ";
+
+    $rows = $pdo->query($query);
+
+    echo "<separator name='Your Games'/>";
+    foreach ($rows as $row) {
+        $id = $row['id'];
+        $name = $row['name'];
+        $creator = $row['user'];
+        $grid = $row['grid'];
+
+        echo "<game id=\"$id\" name=\"$name\" creator=\"$creator\" grid=\"$grid\"/>\r\n";
+    }
+
     $query = "SELECT Game.id, name, user, grid
               FROM steampunked_game Game, steampunked_user User, steampunked_game_info Info
               WHERE Game.creating_user_id = User.id
@@ -38,7 +65,7 @@ function process($user, $authToken) {
 
     $rows = $pdo->query($query);
 
-    echo "<steam status=\"yes\">\n";
+    echo "<separator name='Open Games'/>";
     foreach ($rows as $row) {
         $id = $row['id'];
         $name = $row['name'];
